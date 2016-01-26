@@ -121,9 +121,14 @@
 	  if (cell.y < height && !(0, _lodash.find)(grid, { x: cell.x, y: cell.y + 1 })) cell.y += 1;
 	};
 
+	var drift = function drift(cell) {
+	  if (cell.x < width && !(0, _lodash.find)(grid, { x: cell.x + 1, y: cell.y })) cell.x += 1;
+	};
+
 	var update = function update() {
 	  // calculate stuff
 	  grid.forEach(fall);
+	  grid.forEach(drift);
 	};
 
 	var render = function render() {

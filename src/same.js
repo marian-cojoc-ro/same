@@ -58,9 +58,14 @@ let fall = function(cell) {
   if (cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1})) cell.y += 1;
 };
 
+let drift = function(cell) {
+  if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) cell.x += 1;
+};
+
 let update = function() {
   // calculate stuff
   grid.forEach(fall);
+  grid.forEach(drift);
 }
 
 let render = function() {
