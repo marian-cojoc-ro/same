@@ -48,11 +48,7 @@
 
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _lodash = __webpack_require__(1);
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var grid = [],
 	    width = 11,
@@ -70,45 +66,28 @@
 	var unmatch = function unmatch(cell) {
 	  return cell.matched = false;
 	};
+
 	var randomCell = function randomCell(x, y) {
-	  return new Cell({ x: x, y: y });
+	  return {
+	    x: x,
+	    y: y,
+	    c: rand(0, fills.length),
+	    matched: false
+	  };
 	};
 
-	var Cell = function () {
-	  function Cell(_ref) {
-	    var x = _ref.x;
-	    var y = _ref.y;
-	    var c = _ref.c;
+	var flood = function flood(cell) {
+	  cell.matched = true;
+	  siblings(cell).forEach(flood);
+	};
 
-	    _classCallCheck(this, Cell);
+	var siblings = function siblings(cell) {
+	  var cells = (0, _lodash.filter)(grid, { c: cell.c, matched: false });
 
-	    this.matched = false;
-	    this.x = x;
-	    this.y = y;
-	    this.c = rand(0, fills.length);
-	  }
+	  var n = [(0, _lodash.find)(cells, { x: cell.x, y: cell.y + 1 }), (0, _lodash.find)(cells, { x: cell.x, y: cell.y - 1 }), (0, _lodash.find)(cells, { x: cell.x + 1, y: cell.y }), (0, _lodash.find)(cells, { x: cell.x - 1, y: cell.y })];
 
-	  _createClass(Cell, [{
-	    key: 'flood',
-	    value: function flood() {
-	      this.matched = true;
-	      this.siblings().forEach(function (cell) {
-	        return cell.flood();
-	      });
-	    }
-	  }, {
-	    key: 'siblings',
-	    value: function siblings() {
-	      var cells = (0, _lodash.filter)(grid, { c: this.c, matched: false });
-
-	      var n = [(0, _lodash.find)(cells, { x: this.x, y: this.y + 1 }), (0, _lodash.find)(cells, { x: this.x, y: this.y - 1 }), (0, _lodash.find)(cells, { x: this.x + 1, y: this.y }), (0, _lodash.find)(cells, { x: this.x - 1, y: this.y })];
-
-	      return (0, _lodash.compact)(n);
-	    }
-	  }]);
-
-	  return Cell;
-	}();
+	  return (0, _lodash.compact)(n);
+	};
 
 	for (var y = 1; y <= height; y++) {
 	  for (var x = 1; x <= width; x++) {
@@ -200,7 +179,7 @@
 	var match = function match(e) {
 	  grid.forEach(unmatch);
 	  var cell = (0, _lodash.find)(grid, cellOffset(e));
-	  cell && cell.flood();
+	  cell && flood(cell);
 
 	  var matched = (0, _lodash.filter)(grid, { matched: true });
 

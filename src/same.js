@@ -18,33 +18,32 @@ const fills = [
 
 let rand = (a, b) => a + ~~(Math.random() * b);
 let unmatch = (cell) => cell.matched = false;
-let randomCell = (x, y) => new Cell({x: x, y: y });
 
-class Cell {
-  constructor({x, y, c}) {
-    this.matched = false;
-    this.x = x;
-    this.y = y;
-    this.c = rand(0, fills.length);
-  }
+let randomCell = (x, y) => {
+  return {
+    x,
+    y,
+    c: rand(0, fills.length),
+    matched: false
+  };
+};
 
-  flood() {
-    this.matched = true;
-    this.siblings().forEach((cell) => cell.flood());
-  }
+let flood = (cell) => {
+  cell.matched = true;
+  siblings(cell).forEach(flood);
+};
 
-  siblings() {
-    let cells = filter(grid, {c: this.c, matched: false});
+let siblings = (cell) => {
+  let cells = filter(grid, {c: cell.c, matched: false});
 
-    let n = [
-      find(cells, {x: this.x, y: this.y + 1}),
-      find(cells, {x: this.x, y: this.y - 1}),
-      find(cells, {x: this.x + 1, y: this.y}),
-      find(cells, {x: this.x - 1, y: this.y})
-    ];
+  let n = [
+    find(cells, {x: cell.x, y: cell.y + 1}),
+    find(cells, {x: cell.x, y: cell.y - 1}),
+    find(cells, {x: cell.x + 1, y: cell.y}),
+    find(cells, {x: cell.x - 1, y: cell.y})
+  ];
 
-    return compact(n);
-  }
+  return compact(n);
 }
 
 for (let y = 1; y <= height; y++) {
@@ -132,7 +131,7 @@ let click = function(e) {
 let match = function(e) {
   grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
-  cell && cell.flood();
+  cell && flood(cell);
 
   let matched = filter(grid, {matched: true});
 
