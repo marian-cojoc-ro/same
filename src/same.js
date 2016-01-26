@@ -61,10 +61,22 @@ let drift = function(cell) {
   if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) cell.x += 1;
 };
 
+let column = (x) => filter(grid, {x});
+
+let collapseColumns = () => {
+  for (let x = width; x >= 2; x--) {
+    if (column(x).length) continue;
+
+    for (let x2 = 1; x2 < x; x2++) {
+      column(x2).forEach(drift);
+    }
+  }
+};
+
 let update = function() {
-  // calculate stuff
+  // apply gravity
   grid.forEach(fall);
-  grid.forEach(drift);
+  collapseColumns();
 }
 
 let render = function() {

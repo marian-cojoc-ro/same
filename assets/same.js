@@ -104,10 +104,24 @@
 	  if (cell.x < width && !(0, _lodash.find)(grid, { x: cell.x + 1, y: cell.y })) cell.x += 1;
 	};
 
+	var column = function column(x) {
+	  return (0, _lodash.filter)(grid, { x: x });
+	};
+
+	var collapseColumns = function collapseColumns() {
+	  for (var x = width; x >= 2; x--) {
+	    if (column(x).length) continue;
+
+	    for (var x2 = 1; x2 < x; x2++) {
+	      column(x2).forEach(drift);
+	    }
+	  }
+	};
+
 	var update = function update() {
-	  // calculate stuff
+	  // apply gravity
 	  grid.forEach(fall);
-	  grid.forEach(drift);
+	  collapseColumns();
 	};
 
 	var render = function render() {
