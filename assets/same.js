@@ -60,11 +60,20 @@
 
 	var fills = [[133, 199, 46], [255, 219, 0], [255, 0, 250], [57, 154, 250], [255, 0, 61]];
 
+	var filterGrid = function filterGrid(c) {
+	  return (0, _lodash.filter)(grid, c);
+	};
 	var rand = function rand(a, b) {
 	  return a + ~ ~(Math.random() * b);
 	};
+	var match = function match(cell) {
+	  return cell.matched = true;
+	};
 	var unmatch = function unmatch(cell) {
 	  return cell.matched = false;
+	};
+	var remove = function remove(cell) {
+	  return grid.splice(grid.indexOf(cell), 1);
 	};
 
 	var randomCell = function randomCell(x, y) {
@@ -77,12 +86,12 @@
 	};
 
 	var flood = function flood(cell) {
-	  cell.matched = true;
+	  match(cell);
 	  siblings(cell).forEach(flood);
 	};
 
 	var siblings = function siblings(cell) {
-	  var cells = (0, _lodash.filter)(grid, { c: cell.c, matched: false });
+	  var cells = filterGrid({ c: cell.c, matched: false });
 
 	  var n = [(0, _lodash.find)(cells, { x: cell.x, y: cell.y + 1 }), (0, _lodash.find)(cells, { x: cell.x, y: cell.y - 1 }), (0, _lodash.find)(cells, { x: cell.x + 1, y: cell.y }), (0, _lodash.find)(cells, { x: cell.x - 1, y: cell.y })];
 
@@ -91,8 +100,7 @@
 
 	for (var y = 1; y <= height; y++) {
 	  for (var x = 1; x <= width; x++) {
-	    var cell = randomCell(x, y);
-	    grid.push(cell);
+	    grid.push(randomCell(x, y));
 	  }
 	}
 
@@ -105,7 +113,7 @@
 	};
 
 	var column = function column(x) {
-	  return (0, _lodash.filter)(grid, { x: x });
+	  return filterGrid({ x: x });
 	};
 
 	var collapseColumns = function collapseColumns() {
@@ -121,6 +129,8 @@
 	var update = function update() {
 	  // apply gravity
 	  grid.forEach(fall);
+
+	  // clear empty columns
 	  collapseColumns();
 	};
 
@@ -155,10 +165,6 @@
 	  window.requestAnimationFrame(tick);
 	};
 
-	var init = function init() {
-	  tick();
-	};
-
 	var fade = function fade() {
 	  var lastImage = context.getImageData(0, 0, canvas.width, canvas.height);
 	  var pixelData = lastImage.data;
@@ -179,31 +185,21 @@
 	};
 
 	var click = function click(e) {
-	  var matched = (0, _lodash.filter)(grid, { matched: true });
+	  var matched = filterGrid({ matched: true });
 	  if (matched.length < 2) return;
 
-	  matched.forEach(function (cell) {
-	    var i = grid.indexOf(cell);
-	    grid.splice(i, 1);
-	  });
-
+	  matched.forEach(remove);
 	  update();
 	};
 
-	var match = function match(e) {
+	var hover = function hover(e) {
 	  grid.forEach(unmatch);
 	  var cell = (0, _lodash.find)(grid, cellOffset(e));
 	  cell && flood(cell);
-
-	  var matched = (0, _lodash.filter)(grid, { matched: true });
-
-	  if (matched.length < 2) {
-	    matched.forEach(unmatch);
-	  }
 	};
 
 	canvas.onclick = click;
-	canvas.onmousemove = (0, _lodash.debounce)(match);
+	canvas.onmousemove = (0, _lodash.debounce)(hover);
 
 	window.onload = tick;
 

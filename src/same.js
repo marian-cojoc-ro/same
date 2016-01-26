@@ -16,10 +16,13 @@ const fills = [
   [255, 0, 61]
 ];
 
-let rand = (a, b) => a + ~~(Math.random() * b);
-let unmatch = (cell) => cell.matched = false;
+const filterGrid = (c) => filter(grid, c);
+const rand = (a, b) => a + ~~(Math.random() * b);
+const match = (cell) => cell.matched = true;
+const unmatch = (cell) => cell.matched = false;
+const remove = (cell) => grid.splice(grid.indexOf(cell), 1);
 
-let randomCell = (x, y) => {
+const randomCell = (x, y) => {
   return {
     x,
     y,
@@ -28,13 +31,13 @@ let randomCell = (x, y) => {
   };
 };
 
-let flood = (cell) => {
-  cell.matched = true;
+const flood = (cell) => {
+  match(cell);
   siblings(cell).forEach(flood);
 };
 
-let siblings = (cell) => {
-  let cells = filter(grid, {c: cell.c, matched: false});
+const siblings = (cell) => {
+  let cells = filterGrid({c: cell.c, matched: false});
 
   let n = [
     find(cells, {x: cell.x, y: cell.y + 1}),
@@ -48,22 +51,21 @@ let siblings = (cell) => {
 
 for (let y = 1; y <= height; y++) {
   for (let x = 1; x <= width; x++) {
-    let cell = randomCell(x, y);
-    grid.push(cell);
+    grid.push(randomCell(x, y));
   }
 }
 
-let fall = function(cell) {
+const fall = function(cell) {
   if (cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1})) cell.y += 1;
 };
 
-let drift = function(cell) {
+const drift = function(cell) {
   if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) cell.x += 1;
 };
 
-let column = (x) => filter(grid, {x});
+const column = (x) => filterGrid({x});
 
-let collapseColumns = () => {
+const collapseColumns = () => {
   for (let x = width; x >= 2; x--) {
     if (column(x).length) continue;
 
@@ -73,13 +75,15 @@ let collapseColumns = () => {
   }
 };
 
-let update = function() {
+const update = function() {
   // apply gravity
   grid.forEach(fall);
+
+  // clear empty columns
   collapseColumns();
 }
 
-let render = function() {
+const render = function() {
   // draw stuff
 
   grid.forEach(function(cell) {
@@ -98,18 +102,14 @@ let render = function() {
   });
 }
 
-let tick = function() {
+const tick = function() {
   update();
   fade();
   render();
   window.requestAnimationFrame(tick);
 }
 
-let init = function() {
-  tick();
-}
-
-let fade = function() {
+const fade = function() {
   let lastImage = context.getImageData(0, 0, canvas.width, canvas.height);
   let pixelData = lastImage.data;
 
@@ -121,38 +121,28 @@ let fade = function() {
   context.putImageData(lastImage, 0, 0);
 }
 
-let cellOffset = function(e) {
+const cellOffset = function(e) {
   return {
     x: ~~(e.offsetX / cellSize),
     y: ~~(e.offsetY / cellSize)
   };
 }
 
-let click = function(e) {
-  let matched = filter(grid, {matched: true});
+const click = function(e) {
+  let matched = filterGrid({matched: true});
   if (matched.length < 2) return;
 
-  matched.forEach(function(cell) {
-    let i = grid.indexOf(cell);
-    grid.splice(i, 1);
-  });
-
+  matched.forEach(remove);
   update();
 }
 
-let match = function(e) {
+const hover = function(e) {
   grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
   cell && flood(cell);
-
-  let matched = filter(grid, {matched: true});
-
-  if (matched.length < 2) {
-    matched.forEach(unmatch);
-  }
 }
 
 canvas.onclick = click;
-canvas.onmousemove = debounce(match);
+canvas.onmousemove = debounce(hover);
 
 window.onload = tick;
