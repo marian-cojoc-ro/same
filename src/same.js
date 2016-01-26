@@ -8,27 +8,24 @@ const grid = [],
 const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
 
-const colors = [
-  '#85C72E',
-  '#FFDB00',
-  '#FF00FA',
-  '#399AFA',
-  '#FF003D'
+const fills = [
+  [133, 199, 46],
+  [255, 219, 0],
+  [255, 0, 250],
+  [57, 154, 250],
+  [255, 0, 61]
 ];
 
 let rand = (a, b) => a + ~~(Math.random() * b);
 let unmatch = (cell) => cell.matched = false;
+let randomCell = (x, y) => new Cell({x: x, y: y });
 
 class Cell {
   constructor({x, y, c}) {
     this.matched = false;
     this.x = x;
     this.y = y;
-    this.c = rand(0, colors.length);
-  }
-
-  startFlood() {
-    this.flood();
+    this.c = rand(0, fills.length);
   }
 
   flood() {
@@ -48,10 +45,6 @@ class Cell {
 
     return compact(n);
   }
-}
-
-let randomCell = function(x, y) {
-  return new Cell({x: x, y: y });
 }
 
 for (let y = 1; y <= height; y++) {
@@ -74,18 +67,16 @@ let render = function() {
   // draw stuff
 
   grid.forEach(function(cell) {
-    context.fillStyle = colors[cell.c];
-    if (cell.matched) {
-      context.fillStyle = '#111111';
-    }
+    let [r, g, b] = fills[cell.c];
+    context.fillStyle = `rgb(${r}, ${g}, ${b})`;
 
-    context.beginPath();
-
-    let j = 12;
+    let j = 5;
     let x = (cell.x + .5) * cellSize + rand(-j, j);
     let y = (cell.y + .5) * cellSize + rand(-j, j);
-    context.arc(x, y, cellSize / 2.5, 0, 2 * Math.PI, false);
+    let scale = cell.matched ? .1 : .38;
 
+    context.beginPath();
+    context.arc(x, y, cellSize * scale, 0, 2 * Math.PI, false);
     context.closePath();
     context.fill();
   });
@@ -108,10 +99,10 @@ let fade = function() {
 
   let len = pixelData.length;
   for (let i = 3; i < len; i += 4) {
-    pixelData[i] -= 6;
+    pixelData[i] -= 12;
   }
 
-  context.putImageData(lastImage,0,0);
+  context.putImageData(lastImage, 0, 0);
 }
 
 let cellOffset = function(e) {
@@ -126,7 +117,8 @@ let click = function(e) {
   if (matched.length < 2) return;
 
   matched.forEach(function(cell) {
-    delete(grid[grid.indexOf(cell)]);
+    let i = grid.indexOf(cell);
+    grid.splice(i, 1);
   });
 
   update();
@@ -135,7 +127,7 @@ let click = function(e) {
 let match = function(e) {
   grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
-  cell && cell.startFlood();
+  cell && cell.flood();
 
   let matched = filter(grid, {matched: true});
 

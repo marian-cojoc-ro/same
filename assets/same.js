@@ -46,6 +46,8 @@
 
 	'use strict';
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _lodash = __webpack_require__(1);
@@ -60,13 +62,16 @@
 	var canvas = document.getElementById('same');
 	var context = canvas.getContext('2d');
 
-	var colors = ['#85C72E', '#FFDB00', '#FF00FA', '#399AFA', '#FF003D'];
+	var fills = [[133, 199, 46], [255, 219, 0], [255, 0, 250], [57, 154, 250], [255, 0, 61]];
 
 	var rand = function rand(a, b) {
 	  return a + ~ ~(Math.random() * b);
 	};
 	var unmatch = function unmatch(cell) {
 	  return cell.matched = false;
+	};
+	var randomCell = function randomCell(x, y) {
+	  return new Cell({ x: x, y: y });
 	};
 
 	var Cell = function () {
@@ -80,15 +85,10 @@
 	    this.matched = false;
 	    this.x = x;
 	    this.y = y;
-	    this.c = rand(0, colors.length);
+	    this.c = rand(0, fills.length);
 	  }
 
 	  _createClass(Cell, [{
-	    key: 'startFlood',
-	    value: function startFlood() {
-	      this.flood();
-	    }
-	  }, {
 	    key: 'flood',
 	    value: function flood() {
 	      this.matched = true;
@@ -110,10 +110,6 @@
 	  return Cell;
 	}();
 
-	var randomCell = function randomCell(x, y) {
-	  return new Cell({ x: x, y: y });
-	};
-
 	for (var y = 1; y <= height; y++) {
 	  for (var x = 1; x <= width; x++) {
 	    var cell = randomCell(x, y);
@@ -134,18 +130,21 @@
 	  // draw stuff
 
 	  grid.forEach(function (cell) {
-	    context.fillStyle = colors[cell.c];
-	    if (cell.matched) {
-	      context.fillStyle = '#111111';
-	    }
+	    var _fills$cell$c = _slicedToArray(fills[cell.c], 3);
 
-	    context.beginPath();
+	    var r = _fills$cell$c[0];
+	    var g = _fills$cell$c[1];
+	    var b = _fills$cell$c[2];
 
-	    var j = 12;
+	    context.fillStyle = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+
+	    var j = 5;
 	    var x = (cell.x + .5) * cellSize + rand(-j, j);
 	    var y = (cell.y + .5) * cellSize + rand(-j, j);
-	    context.arc(x, y, cellSize / 2.5, 0, 2 * Math.PI, false);
+	    var scale = cell.matched ? .1 : .38;
 
+	    context.beginPath();
+	    context.arc(x, y, cellSize * scale, 0, 2 * Math.PI, false);
 	    context.closePath();
 	    context.fill();
 	  });
@@ -168,7 +167,7 @@
 
 	  var len = pixelData.length;
 	  for (var i = 3; i < len; i += 4) {
-	    pixelData[i] -= 6;
+	    pixelData[i] -= 12;
 	  }
 
 	  context.putImageData(lastImage, 0, 0);
@@ -186,7 +185,8 @@
 	  if (matched.length < 2) return;
 
 	  matched.forEach(function (cell) {
-	    delete grid[grid.indexOf(cell)];
+	    var i = grid.indexOf(cell);
+	    grid.splice(i, 1);
 	  });
 
 	  update();
@@ -195,7 +195,7 @@
 	var match = function match(e) {
 	  grid.forEach(unmatch);
 	  var cell = (0, _lodash.find)(grid, cellOffset(e));
-	  cell && cell.startFlood();
+	  cell && cell.flood();
 
 	  var matched = (0, _lodash.filter)(grid, { matched: true });
 
