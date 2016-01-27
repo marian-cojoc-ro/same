@@ -21,6 +21,9 @@ const rand = (a, b) => a + ~~(Math.random() * b);
 const match = (cell) => cell.matched = true;
 const unmatch = (cell) => cell.matched = false;
 const remove = (cell) => grid.splice(grid.indexOf(cell), 1);
+const moveRight = (cell) => cell.x += 1;
+const column = (x) => filterGrid({x});
+const row = (y) => filterGrid({y});
 
 const randomCell = (x, y) => {
   return {
@@ -55,55 +58,65 @@ for (let y = 1; y <= height; y++) {
   }
 }
 
-const fall = function(cell) {
-  if (cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1})) cell.y += 1;
+const fall = (cell) => {
+  if (cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1})) {
+    cell.y += 1;
+    fall(cell);
+  }
 };
 
-const drift = function(cell) {
-  if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) cell.x += 1;
+/*
+// Not used in standard game mode
+const drift = (cell) => {
+  if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) {
+    moveRight(cell);
+    drift(cell);
+  }
 };
-
-const column = (x) => filterGrid({x});
+*/
 
 const collapseColumns = () => {
   for (let x = width; x >= 2; x--) {
     if (column(x).length) continue;
 
-    for (let x2 = 1; x2 < x; x2++) {
-      column(x2).forEach(drift);
+    for (let x2 = x - 1; x2 >= 1; x2--) {
+      column(x2).forEach(moveRight);
     }
   }
 };
 
-const update = function() {
-  // apply gravity
-  grid.forEach(fall);
+const applyGravity = () => {
+  for (let y = height; y >= 1; y--) {
+    row(y).forEach(fall);
+  }
+}
 
-  // clear empty columns
+const update = function() {
+  applyGravity();
   collapseColumns();
 }
 
+const drawCell = (cell) => {
+  let [r, g, b] = fills[cell.c];
+  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+
+  let j = 5;
+  let x = (cell.x + 0.5) * cellSize + rand(-j, j);
+  let y = (cell.y + 0.5) * cellSize + rand(-j, j);
+  let scale = cell.matched ? 0.1 : 0.38;
+
+  context.beginPath();
+  context.arc(x, y, cellSize * scale, 0, 2 * Math.PI, false);
+  context.closePath();
+  context.fill();
+};
+
 const render = function() {
   // draw stuff
-
-  grid.forEach(function(cell) {
-    let [r, g, b] = fills[cell.c];
-    context.fillStyle = `rgb(${r}, ${g}, ${b})`;
-
-    let j = 5;
-    let x = (cell.x + .5) * cellSize + rand(-j, j);
-    let y = (cell.y + .5) * cellSize + rand(-j, j);
-    let scale = cell.matched ? .1 : .38;
-
-    context.beginPath();
-    context.arc(x, y, cellSize * scale, 0, 2 * Math.PI, false);
-    context.closePath();
-    context.fill();
-  });
+  grid.forEach(drawCell);
 }
 
 const tick = function() {
-  update();
   fade();
   render();
   window.requestAnimationFrame(tick);
