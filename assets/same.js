@@ -166,15 +166,8 @@
 	};
 
 	var fade = function fade() {
-	  var lastImage = context.getImageData(0, 0, canvas.width, canvas.height);
-	  var pixelData = lastImage.data;
-
-	  var len = pixelData.length;
-	  for (var i = 3; i < len; i += 4) {
-	    pixelData[i] -= 12;
-	  }
-
-	  context.putImageData(lastImage, 0, 0);
+	  context.fillStyle = 'rgba(0, 0, 0, .1)';
+	  context.fillRect(0, 0, canvas.width, canvas.height);
 	};
 
 	var cellOffset = function cellOffset(e) {

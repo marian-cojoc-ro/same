@@ -110,15 +110,8 @@ const tick = function() {
 }
 
 const fade = function() {
-  let lastImage = context.getImageData(0, 0, canvas.width, canvas.height);
-  let pixelData = lastImage.data;
-
-  let len = pixelData.length;
-  for (let i = 3; i < len; i += 4) {
-    pixelData[i] -= 12;
-  }
-
-  context.putImageData(lastImage, 0, 0);
+  context.fillStyle = 'rgba(0, 0, 0, .1)';
+  context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 const cellOffset = function(e) {
