@@ -1,4 +1,7 @@
-import { debounce, filter, find, compact } from 'lodash';
+import compact from 'lodash/array/compact';
+import find from 'lodash/collection/find';
+import filter from 'lodash/collection/filter';
+import debounce from 'lodash/function/debounce';
 
 const grid = [],
   width = 11,
