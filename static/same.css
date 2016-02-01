@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    background: #111;
+    background: #e6d7c8;
 }
 
 #frame {
@@ -8,6 +8,9 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 20px;
+    padding: 10px;
 }
 
 canvas {

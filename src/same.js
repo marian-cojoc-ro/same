@@ -1,7 +1,6 @@
 import compact from 'lodash/array/compact';
 import find from 'lodash/collection/find';
 import filter from 'lodash/collection/filter';
-import debounce from 'lodash/function/debounce';
 
 const grid = [],
   width = 11,
@@ -25,6 +24,9 @@ const match = (cell) => cell.matched = true;
 const unmatch = (cell) => cell.matched = false;
 const remove = (cell) => grid.splice(grid.indexOf(cell), 1);
 const moveRight = (cell) => cell.x += 1;
+const moveDown = (cell) => cell.y += 1;
+const spaceRight = (cell) => cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})
+const spaceBelow = (cell) => cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1});
 const column = (x) => filterGrid({x});
 const row = (y) => filterGrid({y});
 
@@ -62,19 +64,13 @@ for (let y = 1; y <= height; y++) {
 }
 
 const fall = (cell) => {
-  if (cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1})) {
-    cell.y += 1;
-    fall(cell);
-  }
+  while (spaceBelow(cell)) moveDown(cell);
 };
 
 /*
 // Not used in standard game mode
 const drift = (cell) => {
-  if (cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})) {
-    moveRight(cell);
-    drift(cell);
-  }
+  while (spaceRight(cell)) moveRight(cell);
 };
 */
 
@@ -99,41 +95,41 @@ const update = function() {
   collapseColumns();
 }
 
+const twoPI = 2 * Math.PI;
+
 const drawCell = (cell) => {
   let [r, g, b] = fills[cell.c];
   context.fillStyle = `rgb(${r}, ${g}, ${b})`;
 
   let j = 5;
-  let x = (cell.x + 0.5) * cellSize + rand(-j, j);
-  let y = (cell.y + 0.5) * cellSize + rand(-j, j);
-  let scale = cell.matched ? 0.1 : 0.38;
+  let x = (cell.x - 0.5) * cellSize;
+  let y = (cell.y - 0.5) * cellSize;
+  let scale = cell.matched ? 0.2 : 0.4;
 
   context.beginPath();
-  context.arc(x, y, cellSize * scale, 0, 2 * Math.PI, false);
+  context.arc(x, y, cellSize * scale, 0, twoPI, false);
   context.closePath();
   context.fill();
 };
 
 const render = function() {
-  // draw stuff
   grid.forEach(drawCell);
 }
 
 const tick = function() {
-  fade();
+  erase();
   render();
   window.requestAnimationFrame(tick);
 }
 
-const fade = function() {
-  context.fillStyle = 'rgba(0, 0, 0, .1)';
-  context.fillRect(0, 0, canvas.width, canvas.height);
+const erase = function() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 const cellOffset = function(e) {
   return {
-    x: ~~(e.offsetX / cellSize),
-    y: ~~(e.offsetY / cellSize)
+    x: ~~(e.offsetX / cellSize) + 1,
+    y: ~~(e.offsetY / cellSize) + 1
   };
 }
 
@@ -152,6 +148,5 @@ const hover = function(e) {
 }
 
 canvas.onclick = click;
-canvas.onmousemove = debounce(hover);
-
+canvas.onmousemove = hover;
 window.onload = tick;
