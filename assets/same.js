@@ -225,9 +225,10 @@
 	  cell && flood(cell);
 	};
 
-	canvas.onclick = click;
-	canvas.onmousemove = hover;
-	window.onload = tick;
+	canvas.addEventListener('click', click);
+	canvas.addEventListener('click', hover);
+	canvas.addEventListener('mousemove', hover);
+	window.addEventListener('load', tick);
 
 /***/ },
 /* 1 */
