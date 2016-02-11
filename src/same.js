@@ -7,11 +7,11 @@ const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
 
 const fills = [
-  [133, 199, 46],
-  [255, 219, 0],
-  [255, 0, 250],
-  [57, 154, 250],
-  [255, 0, 61]
+  'rgb(133, 199, 46)',
+  'rgb(255, 219, 0)',
+  'rgb(255, 0, 250)',
+  'rgb(57, 154, 250)',
+  'rgb(255, 0, 61)'
 ];
 
 const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell.hasOwnProperty(prop) && cell[prop] === props[prop]);
@@ -98,10 +98,8 @@ const update = function() {
 const twoPI = 2 * Math.PI;
 
 const drawCell = (cell) => {
-  let [r, g, b] = fills[cell.c];
-  context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+  context.fillStyle = fills[cell.c];
 
-  let j = 5;
   let x = (cell.x - 0.5) * cellSize;
   let y = (cell.y - 0.5) * cellSize;
   let scale = cell.matched ? 0.2 : 0.4;
