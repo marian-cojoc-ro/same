@@ -1,7 +1,8 @@
 const grid = [],
   width = 11,
   height = 12,
-  cellSize = 48;
+  cellSize = 48,
+  twoPI = 2 * Math.PI;
 
 const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
@@ -14,12 +15,12 @@ const fills = [
   'rgb(255, 0, 61)'
 ];
 
-const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell.hasOwnProperty(prop) && cell[prop] === props[prop]);
+const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell[prop] === props[prop]);
 const self = (item) => item;
 const compact = (list) => list.filter(self);
 const find = (list, props) => list.find(hasProps(props));
 const filter = (props) => grid.filter(hasProps(props));
-const rand = (a, b) => a + ~~(Math.random() * b);
+const rand = (b) => ~~(Math.random() * b);
 const match = (cell) => cell.matched = true;
 const unmatch = (cell) => cell.matched = false;
 const remove = (cell) => grid.splice(grid.indexOf(cell), 1);
@@ -31,20 +32,16 @@ const column = (x) => filter({x});
 const row = (y) => filter({y});
 
 const randomCell = (x, y) => {
-  return {
-    x,
-    y,
-    c: rand(0, fills.length),
-    matched: false
-  };
+  let c = rand(fills.length), matched = false;
+  return {x, y, c, matched};
 };
 
 const flood = (cell) => {
   match(cell);
-  siblings(cell).forEach(flood);
+  neighbours(cell).forEach(flood);
 };
 
-const siblings = (cell) => {
+const neighbours = (cell) => {
   let cells = filter({c: cell.c, matched: false});
 
   let n = [
@@ -67,13 +64,6 @@ const fall = (cell) => {
   while (spaceBelow(cell)) moveDown(cell);
 };
 
-/*
-// Not used in standard game mode
-const drift = (cell) => {
-  while (spaceRight(cell)) moveRight(cell);
-};
-*/
-
 const collapseColumns = () => {
   for (let x = width; x >= 2; x--) {
     if (column(x).length) continue;
@@ -90,19 +80,12 @@ const applyGravity = () => {
   }
 }
 
-const update = function() {
-  applyGravity();
-  collapseColumns();
-}
-
-const twoPI = 2 * Math.PI;
-
 const drawCell = (cell) => {
   context.fillStyle = fills[cell.c];
 
   let x = (cell.x - 0.5) * cellSize;
   let y = (cell.y - 0.5) * cellSize;
-  let scale = cell.matched ? 0.2 : 0.4;
+  let scale = cell.matched ? 0.25 : 0.4;
 
   context.beginPath();
   context.arc(x, y, cellSize * scale, 0, twoPI, false);
@@ -110,9 +93,7 @@ const drawCell = (cell) => {
   context.fill();
 };
 
-const render = function() {
-  grid.forEach(drawCell);
-}
+const render = () => grid.forEach(drawCell);
 
 const tick = function() {
   erase();
@@ -131,21 +112,22 @@ const cellOffset = function(e) {
   };
 }
 
-const click = function(e) {
+const handleClick = function(e) {
   let matched = filter({matched: true});
   if (matched.length < 2) return;
 
   matched.forEach(remove);
-  update();
+  applyGravity();
+  collapseColumns();
 }
 
-const hover = function(e) {
+const handleHover = function(e) {
   grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
   cell && flood(cell);
 }
 
-canvas.addEventListener('click', click);
-canvas.addEventListener('click', hover);
-canvas.addEventListener('mousemove', hover);
+canvas.addEventListener('click', handleClick);
+canvas.addEventListener('click', handleHover);
+canvas.addEventListener('mousemove', handleHover);
 window.addEventListener('load', tick);
