@@ -1,7 +1,3 @@
-import compact from 'lodash/array/compact';
-import find from 'lodash/collection/find';
-import filter from 'lodash/collection/filter';
-
 const grid = [],
   width = 11,
   height = 12,
@@ -18,7 +14,11 @@ const fills = [
   [255, 0, 61]
 ];
 
-const filterGrid = (c) => filter(grid, c);
+const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell.hasOwnProperty(prop) && cell[prop] === props[prop]);
+const self = (item) => item;
+const compact = (list) => list.filter(self);
+const find = (list, props) => list.find(hasProps(props));
+const filter = (props) => grid.filter(hasProps(props));
 const rand = (a, b) => a + ~~(Math.random() * b);
 const match = (cell) => cell.matched = true;
 const unmatch = (cell) => cell.matched = false;
@@ -27,8 +27,8 @@ const moveRight = (cell) => cell.x += 1;
 const moveDown = (cell) => cell.y += 1;
 const spaceRight = (cell) => cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})
 const spaceBelow = (cell) => cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1});
-const column = (x) => filterGrid({x});
-const row = (y) => filterGrid({y});
+const column = (x) => filter({x});
+const row = (y) => filter({y});
 
 const randomCell = (x, y) => {
   return {
@@ -45,7 +45,7 @@ const flood = (cell) => {
 };
 
 const siblings = (cell) => {
-  let cells = filterGrid({c: cell.c, matched: false});
+  let cells = filter({c: cell.c, matched: false});
 
   let n = [
     find(cells, {x: cell.x, y: cell.y + 1}),
@@ -134,7 +134,7 @@ const cellOffset = function(e) {
 }
 
 const click = function(e) {
-  let matched = filterGrid({matched: true});
+  let matched = filter({matched: true});
   if (matched.length < 2) return;
 
   matched.forEach(remove);
