@@ -52,8 +52,12 @@
 	    cellSize = 48,
 	    twoPI = 2 * Math.PI;
 
+	var score = 0,
+	    scoreAdd = 0;
+
 	var canvas = document.getElementById('same');
 	var context = canvas.getContext('2d');
+	context.font = '24px sans-serif';
 
 	var fills = ['rgb(133, 199, 46)', 'rgb(255, 219, 0)', 'rgb(255, 0, 250)', 'rgb(57, 154, 250)', 'rgb(255, 0, 61)'];
 
@@ -167,8 +171,14 @@
 	  context.fill();
 	};
 
+	var drawScore = function drawScore() {
+	  context.fillStyle = '#453627';
+	  context.fillText('Score: ' + score + (scoreAdd > 0 ? ' + ' + scoreAdd : ''), 5, 610);
+	};
+
 	var render = function render() {
-	  return grid.forEach(drawCell);
+	  grid.forEach(drawCell);
+	  drawScore();
 	};
 
 	var tick = function tick() {
@@ -188,10 +198,15 @@
 	  };
 	};
 
+	var points = function points(matched) {
+	  return matched.length * (matched.length - 1);
+	};
+
 	var handleClick = function handleClick(e) {
 	  var matched = filter({ matched: true });
 	  if (matched.length < 2) return;
 
+	  score += scoreAdd;
 	  matched.forEach(remove);
 	  applyGravity();
 	  collapseColumns();
@@ -201,6 +216,11 @@
 	  grid.forEach(unmatch);
 	  var cell = find(grid, cellOffset(e));
 	  cell && flood(cell);
+
+	  var matched = filter({ matched: true });
+	  var matchedCount = matched.length;
+	  if (matchedCount < 2) return;
+	  scoreAdd = points(matched);
 	};
 
 	canvas.addEventListener('click', handleClick);

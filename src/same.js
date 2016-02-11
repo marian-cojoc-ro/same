@@ -4,8 +4,11 @@ const grid = [],
   cellSize = 48,
   twoPI = 2 * Math.PI;
 
+let score = 0, scoreAdd = 0;
+
 const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
+context.font = '24px sans-serif';
 
 const fills = [
   'rgb(133, 199, 46)',
@@ -93,7 +96,15 @@ const drawCell = (cell) => {
   context.fill();
 };
 
-const render = () => grid.forEach(drawCell);
+const drawScore = () => {
+  context.fillStyle = '#453627';
+  context.fillText(`Score: ${score}` + (scoreAdd > 0 ? ` + ${scoreAdd}` : ''), 5, 610);
+}
+
+const render = () => {
+  grid.forEach(drawCell);
+  drawScore();
+}
 
 const tick = function() {
   erase();
@@ -112,10 +123,13 @@ const cellOffset = function(e) {
   };
 }
 
+const points = (matched) => matched.length * (matched.length - 1);
+
 const handleClick = function(e) {
   let matched = filter({matched: true});
   if (matched.length < 2) return;
 
+  score += scoreAdd;
   matched.forEach(remove);
   applyGravity();
   collapseColumns();
@@ -125,6 +139,11 @@ const handleHover = function(e) {
   grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
   cell && flood(cell);
+
+  let matched = filter({matched: true});
+  let matchedCount = matched.length;
+  if (matchedCount < 2) return;
+  scoreAdd = points(matched);
 }
 
 canvas.addEventListener('click', handleClick);
