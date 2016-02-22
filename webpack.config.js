@@ -10,6 +10,10 @@ module.exports = {
     filename: 'same.js'
   },
 
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({minimize: true})
+  ],
+
   module: {
     loaders: [
       {
