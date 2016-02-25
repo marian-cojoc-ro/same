@@ -10,13 +10,7 @@ const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
 context.font = '24px sans-serif';
 
-const fills = [
-  'rgb(133, 199, 46)',
-  'rgb(255, 219, 0)',
-  'rgb(255, 0, 250)',
-  'rgb(57, 154, 250)',
-  'rgb(255, 0, 61)'
-];
+const fills = ['#8C3', '#FD0', '#F0E', '#4AF', '#F04'];
 
 const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell[prop] === props[prop]);
 const self = (item) => item;
@@ -29,8 +23,8 @@ const unmatch = (cell) => cell.matched = false;
 const remove = (cell) => grid.splice(grid.indexOf(cell), 1);
 const moveRight = (cell) => cell.x += 1;
 const moveDown = (cell) => cell.y += 1;
-const spaceRight = (cell) => cell.x < width && !find(grid, {x: cell.x + 1, y: cell.y})
-const spaceBelow = (cell) => cell.y < height && !find(grid, {x: cell.x, y: cell.y + 1});
+
+const spaceBelow = (cell) => !find(grid, {x: cell.x, y: cell.y + 1});
 const column = (x) => filter({x});
 const row = (y) => filter({y});
 
@@ -57,14 +51,8 @@ const neighbours = (cell) => {
   return compact(n);
 }
 
-for (let y = 1; y <= height; y++) {
-  for (let x = 1; x <= width; x++) {
-    grid.push(randomCell(x, y));
-  }
-}
-
 const fall = (cell) => {
-  while (spaceBelow(cell)) moveDown(cell);
+  while (cell.y < height && spaceBelow(cell)) moveDown(cell);
 };
 
 const collapseColumns = () => {
@@ -97,7 +85,7 @@ const drawCell = (cell) => {
 };
 
 const drawScore = () => {
-  context.fillStyle = '#453627';
+  context.fillStyle = '#432';
   context.fillText(`Score: ${score}` + (scoreAdd > 0 ? ` + ${scoreAdd}` : ''), 5, 610);
 }
 
@@ -112,9 +100,7 @@ const tick = function() {
   window.requestAnimationFrame(tick);
 }
 
-const erase = function() {
-  context.clearRect(0, 0, canvas.width, canvas.height);
-}
+const erase = () => context.clearRect(0, 0, canvas.width, canvas.height);
 
 const cellOffset = function(e) {
   return {
@@ -141,12 +127,21 @@ const handleHover = function(e) {
   cell && flood(cell);
 
   let matched = filter({matched: true});
-  let matchedCount = matched.length;
-  if (matchedCount < 2) return;
-  scoreAdd = points(matched);
+
+  if (matched.length >= 2) {
+    scoreAdd = points(matched);
+  } else {
+    matched.forEach(unmatch);
+  }
 }
 
 canvas.addEventListener('click', handleClick);
 canvas.addEventListener('click', handleHover);
 canvas.addEventListener('mousemove', handleHover);
 window.addEventListener('load', tick);
+
+for (let y = 1; y <= height; y++) {
+  for (let x = 1; x <= width; x++) {
+    grid.push(randomCell(x, y));
+  }
+}
