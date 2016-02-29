@@ -33,24 +33,6 @@ const randomCell = (x, y) => {
   return {x, y, c, matched};
 };
 
-const flood = (cell) => {
-  match(cell);
-  neighbours(cell).forEach(flood);
-};
-
-const neighbours = (cell) => {
-  let cells = filter({c: cell.c, matched: false});
-
-  let n = [
-    find(cells, {x: cell.x, y: cell.y + 1}),
-    find(cells, {x: cell.x, y: cell.y - 1}),
-    find(cells, {x: cell.x + 1, y: cell.y}),
-    find(cells, {x: cell.x - 1, y: cell.y})
-  ];
-
-  return compact(n);
-}
-
 const fall = (cell) => {
   while (cell.y < height && spaceBelow(cell)) moveDown(cell);
 };
@@ -109,29 +91,53 @@ const cellOffset = function(e) {
   };
 }
 
+const neighbours = (cell) => {
+  let cells = filter({c: cell.c});
+
+  let n = [
+    find(cells, {x: cell.x, y: cell.y + 1}),
+    find(cells, {x: cell.x, y: cell.y - 1}),
+    find(cells, {x: cell.x + 1, y: cell.y}),
+    find(cells, {x: cell.x - 1, y: cell.y})
+  ];
+
+  return compact(n);
+}
+
+const matchCells = function(cell, list = []) {
+  list.push(cell);
+
+  neighbours(cell).forEach(function(c) {
+    if (list.indexOf(c) === -1) matchCells(c, list);
+  });
+
+  return list;
+}
+
 const points = (matched) => matched.length * (matched.length - 1);
 
 const handleClick = function(e) {
-  let matched = filter({matched: true});
-  if (matched.length < 2) return;
+  let cell = find(grid, cellOffset(e));
+  let matched = matchCells(cell);
 
-  score += scoreAdd;
-  matched.forEach(remove);
-  applyGravity();
-  collapseColumns();
+  if (matched.length >= 2) {
+    matched.forEach(remove);
+    score += points(matched);
+    applyGravity();
+    collapseColumns();
+  }
 }
 
 const handleHover = function(e) {
-  grid.forEach(unmatch);
   let cell = find(grid, cellOffset(e));
-  cell && flood(cell);
+  if (!cell) return;
 
-  let matched = filter({matched: true});
+  let matched = matchCells(cell);
+  grid.forEach(unmatch);
 
   if (matched.length >= 2) {
+    matched.forEach(match);
     scoreAdd = points(matched);
-  } else {
-    matched.forEach(unmatch);
   }
 }
 
