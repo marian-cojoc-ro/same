@@ -8,6 +8,7 @@
     "build": "babel src/same.js --out-file assets/same.js",
     "watch": "babel src/same.js --watch --out-file assets/same.js"
   },
+  "repository": "https://github.com/amneacsu/same",
   "author": "",
   "license": "ISC",
   "devDependencies": {
