@@ -4,7 +4,7 @@ const grid = [],
   cellSize = 48,
   twoPI = 2 * Math.PI;
 
-let score = 0, scoreAdd = 0;
+let score = 0, bonus = 0;
 
 const canvas = document.getElementById('same');
 const context = canvas.getContext('2d');
@@ -68,7 +68,7 @@ const drawCell = (cell) => {
 
 const drawScore = () => {
   context.fillStyle = '#432';
-  context.fillText(`Score: ${score}` + (scoreAdd > 0 ? ` + ${scoreAdd}` : ''), 5, 610);
+  context.fillText(`Score: ${score}` + (bonus > 0 ? ` + ${bonus}` : ''), 5, 610);
 }
 
 const render = () => {
@@ -137,7 +137,7 @@ const handleHover = function(e) {
 
   if (matched.length >= 2) {
     matched.forEach(match);
-    scoreAdd = points(matched);
+    bonus = points(matched);
   }
 }
 
