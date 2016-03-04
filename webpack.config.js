@@ -4,6 +4,7 @@ var webpack = require('webpack');
 module.exports = {
   entry: path.resolve('src', 'same.js'),
 
+  devtool: 'sourcemap',
   output: {
     path: path.resolve(__dirname, 'assets'),
     publicPath: '/',
