@@ -5,17 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "http-server . -o",
-    "build": "webpack",
-    "watch": "webpack --watch"
+    "build": "babel src/same.js --out-file assets/same.js",
+    "watch": "babel src/same.js --watch --out-file assets/same.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel": "^6.3.26",
-    "babel-core": "^6.4.0",
-    "babel-loader": "^6.2.1",
+    "babel-cli": "^6.6.4",
     "babel-preset-es2015": "^6.3.13",
-    "http-server": "^0.8.5",
-    "webpack": "^1.12.11"
+    "http-server": "^0.8.5"
   }
 }
