@@ -1,14 +1,12 @@
 import { grid } from './game';
+import { canvas, context, render } from './canvas';
+import { gameToCanvas, cellOffset } from './x';
 
 const
   width = 11,
   height = 12;
 
 let score = 0, bonus = 0;
-
-import { canvas, context, render, cellOffset } from './canvas';
-
-const a = () => null;
 
 const hasProps = (props) => (cell) => Object.keys(props).every((prop) => cell[prop] === props[prop]);
 const self = (item) => item;
@@ -52,7 +50,7 @@ const applyGravity = () => {
 }
 
 const tick = function() {
-  render(grid, score, bonus);
+  render(gameToCanvas(grid, score, bonus));
   window.requestAnimationFrame(tick);
 }
 
