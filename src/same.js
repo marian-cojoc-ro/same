@@ -1,4 +1,4 @@
-import grid from './game';
+import { grid } from './game';
 
 const
   width = 11,
