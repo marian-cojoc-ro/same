@@ -12,7 +12,7 @@ const makeSprite = color => {
   let sprite = context.getImageData(0, 0, cellSize, cellSize);
   erase();
   return sprite;
-}
+};
 
 const circle = (x, y, radius, color) => {
   context.fillStyle = color;
@@ -20,14 +20,14 @@ const circle = (x, y, radius, color) => {
   context.arc(x, y, radius, 0, twoPI, false);
   context.closePath();
   context.fill();
-}
+};
 
 const sprites = fillColors.map(makeSprite);
 
 const drawScore = score => {
   context.fillStyle = '#432';
   context.fillText(score, 5, 610);
-}
+};
 
 const drawCell = cell => {
   context.putImageData(sprites[cell.m ? 0 : cell.c], cell.x * cellSize, cell.y * cellSize);
@@ -38,7 +38,7 @@ export const cellOffset = e => {
     x: ~~(e.offsetX / cellSize),
     y: ~~(e.offsetY / cellSize)
   };
-}
+};
 
 export const render = state => {
   erase();

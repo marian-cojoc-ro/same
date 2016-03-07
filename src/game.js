@@ -48,7 +48,7 @@ const applyGravity = () => {
   for (let y = height - 1; y >= 0; y--) {
     row(y).forEach(fall);
   }
-}
+};
 
 export const click = cell => {
   let matched = matchCells(cell);
@@ -59,7 +59,7 @@ export const click = cell => {
     applyGravity();
     collapseColumns();
   }
-}
+};
 
 export const move = cell => {
   grid.forEach(unmatch);
@@ -69,12 +69,12 @@ export const move = cell => {
     matched.forEach(match);
     score.bonus = points(matched);
   }
-}
+};
 
 export const handle = (coords, action) => {
   const cell = find(grid, coords);
   cell && action(cell);
-}
+};
 
 const neighbours = cell => {
   let cells = filter({c: cell.c});
@@ -87,7 +87,7 @@ const neighbours = cell => {
   ];
 
   return compact(n);
-}
+};
 
 const matchCells = (cell, list = []) => {
   list.push(cell);

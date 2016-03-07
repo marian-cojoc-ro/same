@@ -5,7 +5,7 @@ import { gameToCanvas } from './x';
 const tick = () => {
   render(gameToCanvas(game));
   window.requestAnimationFrame(tick);
-}
+};
 
 const mouse = action => e => handle(cellOffset(e), action);
 
