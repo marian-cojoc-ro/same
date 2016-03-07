@@ -1,13 +1,12 @@
-export const grid = [];
+const grid = [];
+const score = { current: 0, bonus: 0 };
 
-const cellSize = 48;
+export const game = { grid, score };
+
 const width = 11;
 const height = 12;
 
-let score = 0;
-let bonus = 0;
-
-const points = (matched) => matched.length * (matched.length - 1);
+const points = matched => matched.length * (matched.length - 1);
 const rand = b => ~~(Math.random() * b);
 const self = item => item;
 
@@ -27,49 +26,54 @@ const column = x => filter({x});
 const row = y => filter({y});
 
 const randomCell = (x, y) => {
-  let c = rand(5), matched = false;
+  let c = rand(5) + 1, matched = false;
   return {x, y, c, matched};
 };
 
 const fall = cell => {
-  while (cell.y < height && spaceBelow(cell)) moveDown(cell);
+  while (cell.y < height - 1 && spaceBelow(cell)) moveDown(cell);
 };
 
 const collapseColumns = () => {
-  for (let x = width; x >= 2; x--) {
+  for (let x = width - 1; x >= 1; x--) {
     if (column(x).length) continue;
 
-    for (let x2 = x - 1; x2 >= 1; x2--) {
+    for (let x2 = x - 1; x2 >= 0; x2--) {
       column(x2).forEach(moveRight);
     }
   }
 };
 
 const applyGravity = () => {
-  for (let y = height; y >= 1; y--) {
+  for (let y = height - 1; y >= 0; y--) {
     row(y).forEach(fall);
   }
 }
 
-const click = cell => {
+export const click = cell => {
   let matched = matchCells(cell);
 
   if (matched.length >= 2) {
-    score += points(matched);
+    score.current += points(matched);
     matched.forEach(remove);
     applyGravity();
     collapseColumns();
   }
 }
 
-const move = cell => {
+export const move = cell => {
   grid.forEach(unmatch);
   let matched = matchCells(cell);
 
   if (matched.length >= 2) {
     matched.forEach(match);
-    bonus = points(matched);
+    score.bonus = points(matched);
   }
+}
+
+export const handle = (coords, action) => {
+  const cell = find(grid, coords);
+  cell && action(cell);
 }
 
 const neighbours = cell => {
@@ -95,26 +99,8 @@ const matchCells = (cell, list = []) => {
   return list;
 };
 
-const cellOffset = e => {
-  return {
-    x: ~~(e.offsetX / cellSize) + 1,
-    y: ~~(e.offsetY / cellSize) + 1
-  };
-}
-
-const handle = action => {
-  return e => {
-    let cell = find(grid, cellOffset(e));
-    cell && action(cell, e);
-  }
-}
-
-for (let y = 1; y <= height; y++) {
-  for (let x = 1; x <= width; x++) {
+for (let y = 0; y < height; y++) {
+  for (let x = 0; x < width; x++) {
     grid.push(randomCell(x, y));
   }
 }
-
-export const handleMove = handle(move);
-export const handleClick = handle(click);
-export const game = { grid, score, bonus };

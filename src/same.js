@@ -1,13 +1,15 @@
-import { canvas, render } from './canvas';
+import { canvas, render, cellOffset } from './canvas';
+import { handle, click, move, game } from './game';
 import { gameToCanvas } from './x';
-import { handleClick, handleMove, game } from './game';
 
-const tick = function() {
+const tick = () => {
   render(gameToCanvas(game));
   window.requestAnimationFrame(tick);
 }
 
-canvas.addEventListener('click', handleClick);
-canvas.addEventListener('click', handleMove);
-canvas.addEventListener('mousemove', handleMove);
+const mouse = action => e => handle(cellOffset(e), action);
+
+canvas.addEventListener('click', mouse(click));
+canvas.addEventListener('click', mouse(move));
+canvas.addEventListener('mousemove', mouse(move));
 window.addEventListener('load', tick);
