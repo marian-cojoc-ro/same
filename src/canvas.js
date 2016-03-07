@@ -20,12 +20,12 @@ const circle = (x, y, radius) => {
   context.fill();
 }
 
-export const canvas = document.getElementById('same');
-export const context = canvas.getContext('2d');
-context.font = '24px sans-serif';
-
 export const render = state => {
   erase();
   state.cells.forEach(drawCell);
   drawScore(state.score);
 };
+
+export const canvas = document.getElementById('same');
+export const context = canvas.getContext('2d');
+context.font = '24px sans-serif';
