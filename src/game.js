@@ -10,7 +10,7 @@ const points = matched => matched.length * (matched.length - 1);
 const rand = b => ~~(Math.random() * b);
 const self = item => item;
 
-const hasProps = props => cell => Object.keys(props).every((prop) => cell[prop] === props[prop]);
+const hasProps = props => cell => Object.keys(props).every(prop => cell[prop] === props[prop]);
 const find = (list, props) => list.find(hasProps(props));
 const filter = props => grid.filter(hasProps(props));
 const compact = list => list.filter(self);
@@ -91,11 +91,7 @@ const neighbours = cell => {
 
 const matchCells = (cell, list = []) => {
   list.push(cell);
-
-  neighbours(cell).forEach(function(c) {
-    if (list.indexOf(c) === -1) matchCells(c, list);
-  });
-
+  neighbours(cell).filter(c => list.indexOf(c) === -1).forEach(c => matchCells(c, list));
   return list;
 };
 

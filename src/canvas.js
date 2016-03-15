@@ -1,5 +1,5 @@
 export const canvas = document.getElementById('same');
-export const context = canvas.getContext('2d');
+const context = canvas.getContext('2d');
 
 const fillColors = ['#DDD', '#8C3', '#FD0', '#F0E', '#4AF', '#F04'];
 const twoPI = 2 * Math.PI;
