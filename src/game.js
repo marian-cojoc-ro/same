@@ -1,5 +1,7 @@
-const grid = [];
-const score = { current: 0, bonus: 0 };
+import _curry from 'lodash/fp/curry';
+
+let grid = [];
+let score = { current: 0, bonus: 0 };
 
 export const game = { grid, score };
 
@@ -95,8 +97,29 @@ const matchCells = (cell, list = []) => {
   return list;
 };
 
-for (let y = 0; y < height; y++) {
-  for (let x = 0; x < width; x++) {
-    grid.push(randomCell(x, y));
+// state transformer for mouse over
+export const applyMove = (coords, state) => {
+  grid = state.grid;
+  score = state.score;
+
+  handle(coords, move);
+
+  return {
+    grid,
+    score
   }
-}
+};
+
+// state transformer for click
+export const applyClick = (coords, state) => {
+  grid = state.grid;
+  score = state.score;
+
+  handle(coords, click);
+
+  return {
+    grid,
+    score
+  }
+};
+

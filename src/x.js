@@ -1,3 +1,7 @@
+/**
+ * transforms game state to canvas state for a simpler render
+ */
+
 const drawCell = cell => cell;
 
 export const gameToCanvas = game => {

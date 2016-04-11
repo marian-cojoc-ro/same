@@ -20,5 +20,8 @@
     "eslint": "^2.3.0",
     "http-server": "^0.8.5",
     "webpack": "^1.12.11"
+  },
+  "dependencies": {
+    "lodash": "^4.10.0"
   }
 }
